@@ -12,6 +12,10 @@ from typing import Callable, Dict
 
 from instance import Instance
 from solution import Solution
+
+# import point
+from point import Point
+
 from file_wrappers import StdinFileWrapper, StdoutFileWrapper
 
 
@@ -21,9 +25,17 @@ def solve_naive(instance: Instance) -> Solution:
         towers=instance.cities,
     )
 
+def solve_dp(instance: Instance) -> Solution:
+    return Solution(
+        instance=instance,
+        towers=instance.cities + [Point(29,29)],
+    )
+
+
 
 SOLVERS: Dict[str, Callable[[Instance], Solution]] = {
-    "naive": solve_naive
+    "naive": solve_naive,
+    "dp" : solve_dp
 }
 
 
@@ -57,7 +69,7 @@ if __name__ == "__main__":
                         "read an instance from. Use - for stdin.")
     parser.add_argument("--solver", required=True, type=str,
                         help="The solver type.", choices=SOLVERS.keys())
-    parser.add_argument("output", type=str, 
-                        help="The output file. Use - for stdout.", 
+    parser.add_argument("output", type=str,
+                        help="The output file. Use - for stdout.",
                         default="-")
     main(parser.parse_args())
