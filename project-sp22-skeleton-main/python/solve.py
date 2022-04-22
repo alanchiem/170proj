@@ -25,17 +25,77 @@ def solve_naive(instance: Instance) -> Solution:
         towers=instance.cities,
     )
 
-def solve_dp(instance: Instance) -> Solution:
+
+def solve_set_cover(instance: Instance) -> Solution:
+    gsl = instance.grid_side_length
+    cr = instance.coverage_radius
+    pr = instance.penalty_radius # ignored
+    citiesList = instance.cities
+    towersList = []
+
+    # Description
+    # 1. Loop through all possible tower positions. Find the tower that covers as many cities as possible.
+    # 2. Add tower to towerslist and remove the cities it covered.
+        # Optimziation: remove that tower position from possible tower positions since we won't place two towers in the same place
+    # 3. Repeat until all cities are covered.
+
+    possibleTowerPositions = []
+    for x in range(0, gsl):
+        for y in range(0, gsl):
+            possibleTowerPositions.append(Point(x,y))
+
+    def numCitiesCovered(point):
+        count = 0
+        for city in citiesList:
+            if Point.distance_obj(tower, city) <= cr: # point.py for examples
+                count += 1
+        return count
+
+    def getCitiesCovered(point):
+        cList = []
+        for city in citiesList:
+            if Point.distance_obj(tower, city) <= cr:
+                cList.append(city)
+        return cList
+
+    while len(citiesList) > 0:
+        max_coverage = 0
+        max_tower = Point(0, 0)
+        coveredByMax = []
+        for tower in possibleTowerPositions:
+            coverageCount = numCitiesCovered(tower)
+            coveredList = getCitiesCovered(tower)
+            if coverageCount > max_coverage:
+                max_tower = tower
+                max_coverage = coverageCount
+                coveredByMax = coveredList
+
+        towersList.append(max_tower)
+        citiesList = list(set(citiesList) - set(coveredByMax))
+
     return Solution(
         instance=instance,
-        towers=instance.cities + [Point(29,29)],
+        towers=towersList,
+    )
+    
+
+
+def solve_dp(instance: Instance) -> Solution:
+
+    towersList = instance.cities + [Point(28,29)]
+
+    return Solution(
+        instance = instance,
+        towers = towersList
     )
 
 
 
 SOLVERS: Dict[str, Callable[[Instance], Solution]] = {
     "naive": solve_naive,
-    "dp" : solve_dp
+    "sc" : solve_set_cover,
+    "dp" : solve_dp,
+
 }
 
 
